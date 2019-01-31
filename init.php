@@ -15,22 +15,16 @@ class Article_Attachment extends Plugin {
 	}
 
 	function hook_article_filter($article) {
-		//if (strpos($article["link"], "deviantart.com/art/") !== FALSE) {
-			//ob_start();
-			//var_dump($article);
-			//$result = ob_get_clean();
-			//$article['content'] = "<pre>".$result."</pre><br><br>".$article["content"];
-			$res = $this->pdo->query("select content_url
-							from ttrss_enclosures
-							where post_id=(select id
-									from ttrss_entries
-									where guid='".$article['guid_hashed']."')
-							order by width desc
-							limit 1;");
-			while ($line = $res->fetch()) {
-				$article['content'] = "<img src='".$line["content_url"]."'><br><br>".$article["content"];
-			}
-		//}
+		$res = $this->pdo->query("select content_url
+						from ttrss_enclosures
+						where post_id=(select id
+								from ttrss_entries
+								where guid='".$article['guid_hashed']."')
+						order by width desc
+						limit 1;");
+		while ($line = $res->fetch()) {
+			$article['content'] = "<img src='".$line["content_url"]."'><br><br>".$article["content"];
+		}
 		return $article;
 	}
 
