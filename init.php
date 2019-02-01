@@ -15,15 +15,18 @@ class Article_Attachment extends Plugin {
 	}
 
 	function hook_article_filter($article) {
+		$guid = $article['guid_hashed'];
+		if ($guid == '')
+			$guid = $article['guid'];
 		$res = $this->pdo->query("select content_url
 						from ttrss_enclosures
 						where post_id=(select id
 								from ttrss_entries
-								where guid='".$article['guid_hashed']."')
+								where guid='".$guid."')
 						order by width desc
 						limit 1;");
 		while ($line = $res->fetch()) {
-			$article['content'] = "<img src='".$line["content_url"]."'><br><br>".$article["content"];
+			$article['content'] = "<img src='".$line["content_url"]."'><br><hr><br>".$article["content"];
 		}
 		return $article;
 	}
