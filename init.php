@@ -11,13 +11,11 @@ class Article_Attachment extends Plugin {
 
 	function init($host) {
 		$this->host = $host;
-		$host->add_hook($host::HOOK_ARTICLE_FILTER, $this);
+		$host->add_hook($host::HOOK_RENDER_ARTICLE_CDM, $this);
 	}
 
-	function hook_article_filter($article) {
-		$guid = $article['guid_hashed'];
-		if ($guid == '')
-			$guid = $article['guid'];
+	function hook_render_article_cdm($article) {
+		$guid = $article['guid'];
 		$res = $this->pdo->query("select content_url
 						from ttrss_enclosures
 						where post_id=(select id
@@ -25,9 +23,9 @@ class Article_Attachment extends Plugin {
 								where guid='".$guid."')
 						order by width desc
 						limit 1;");
-		while ($line = $res->fetch()) {
-			$article['content'] = "<img src='".$line["content_url"]."'><br><hr><br>".$article["content"];
-		}
+		while ($line = $res->fetch())
+			if (strpos($article["content"], $line["content_url"]) === false)
+				$article['content'] = "<img src='".$line["content_url"]."'><br><hr><br>".$article["content"];
 		return $article;
 	}
 
